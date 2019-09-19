@@ -1,0 +1,19 @@
+{
+  "name": "d365-upsert-webresource",
+  "version": "1.0.0",
+  "description": "",
+  "main": "d365upsertwebresource.js",
+  "scripts": {
+    "start": "node d365upserwebresources/d365webresourceuploader.js"
+  },
+  "author": "Marius Solend",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "12.7.5"
+  },
+  "dependencies": {
+    "adal-node": "0.2.1",
+    "find-config": "1.0.0",
+    "superagent": "5.1.0"
+  }
+}
