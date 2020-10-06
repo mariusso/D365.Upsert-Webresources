@@ -1,3 +1,2 @@
-/node_modules
-/webresources
-/d365upserwebresourcesconfiguration
+node_modules/
+d365upsertwebresourcesconfiguration/

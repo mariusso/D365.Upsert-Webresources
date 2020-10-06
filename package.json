@@ -4,7 +4,7 @@
   "description": "",
   "main": "d365upsertwebresource.js",
   "scripts": {
-    "start": "node d365upserwebresources/d365webresourceuploader.js"
+    "start": "node d365upsertwebresources/d365webresourceuploader.js"
   },
   "author": "Marius Solend",
   "license": "ISC",

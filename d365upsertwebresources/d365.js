@@ -4,7 +4,7 @@ const url = require("url");
 const adal = require("./adal");
 const superagent = require("superagent");
 const findConfig = require("find-config");
-const d365Config = findConfig.require("d365.json", { dir: "d365upserwebresourcesconfiguration" });
+const d365Config = require("./d365upsertwebresourcesconfiguration/d365.json");
 
 if (d365Config == null) {
     throw new Error("Missing d365.json");
@@ -17,8 +17,6 @@ exports.UploadWebresource = async (files) => {
 
     let publishCustomizations = false;
     let publishXmlString = "<importexportxml><webresources>" ;
-
-    
 
     const tokenResponse = await adal.acquireTokenWithUserNameAndPassword();
 

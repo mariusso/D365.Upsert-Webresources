@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const findConfig = require("find-config");
-const wrConfig = findConfig.require("webresources.json", {dir: "d365upserwebresourcesconfiguration"});
+const wrConfig = require("./d365upsertwebresourcesconfiguration/webresources.json");
 
 if (wrConfig == null) {
     throw new Error("Missing webresources.json");

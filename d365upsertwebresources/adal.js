@@ -1,7 +1,7 @@
 const AuthenticationContext = require('adal-node').AuthenticationContext;
 const findConfig = require("find-config");
-const d365Config = findConfig.require("d365.json", {dir: "d365upserwebresourcesconfiguration"});
-const clientConfig = findConfig.require("client.json", {dir: "d365upserwebresourcesconfiguration"});
+const d365Config  = require("./d365upsertwebresourcesconfiguration/d365.json");
+const clientConfig  = require("./d365upsertwebresourcesconfiguration/client.json");
 
 if(d365Config == null) {
     throw new Error("Missing d365.json");
@@ -11,7 +11,7 @@ if(clientConfig == null) {
     throw new Error("Missing client.json");
 }
 
-const authorityUri = d365Config.authority + d365Config.tenantId;
+const authorityUri = d365Config.authority;
 
 exports.acquireTokenWithUserNameAndPassword = () => {
     return new Promise((resolve, reject) => {
