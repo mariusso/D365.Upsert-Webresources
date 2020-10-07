@@ -1,4 +1,4 @@
-const Init = require("./Init").Init;
+const Execute = require("./Execute.js").Execute;
 
 const args = process.argv.slice(2);
 
@@ -8,4 +8,4 @@ if(args.length > 0) {
     fileNames = fileNames.concat(args);
 }
 
-Init(fileNames);
+Execute(fileNames);

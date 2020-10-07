@@ -5,7 +5,7 @@ const fileHandler = require("./FileHandler");
 const adal = require("./AdalNode");
 const dr365config = require("./clientConfig/clientConfig.json");
 
-exports.Init = async (fileNames) => {
+exports.Execute = async (fileNames) => {
     
     console.log("Deploying web resources...");
 
