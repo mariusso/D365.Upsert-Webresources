@@ -42,6 +42,9 @@ const ReadDirectoryAndRetrieveFiles = (directory, virtualPath, existingFileList 
             });
 
         } else {
+            if (fileNames.length > 0 && !fileNames.some(f => f === name)) {
+                continue;
+            }
             ReadDirectoryAndRetrieveFiles(completePath, path.join(virtualPath, name), fileList, fileNames);
         }
     };
