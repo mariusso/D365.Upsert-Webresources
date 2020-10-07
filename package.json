@@ -4,7 +4,7 @@
   "description": "",
   "main": "d365upsertwebresource.js",
   "scripts": {
-    "start": "node d365upsertwebresources/d365webresourceuploader.js"
+    "start": "node d365upsertwebresources/EntryPoint.js"
   },
   "author": "Marius Solend",
   "license": "ISC",
@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "adal-node": "0.2.1",
-    "find-config": "1.0.0",
     "superagent": "5.1.0"
   }
 }

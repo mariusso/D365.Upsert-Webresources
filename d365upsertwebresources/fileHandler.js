@@ -1,43 +1,50 @@
+"use strict";
+
 const fs = require("fs");
 const path = require("path");
-const findConfig = require("find-config");
-const wrConfig = require("./d365upsertwebresourcesconfiguration/webresources.json");
+const clientConfig = require("./clientConfig/clientConfig.json");
 
-if (wrConfig == null) {
+if (clientConfig == null) {
     throw new Error("Missing webresources.json");
 }
 
-exports.GetFiles = () => {
+exports.GetFiles = (fileNames = []) => {
 
-    var fileList = ReadDirectoryAndRetrieveFiles(wrConfig.localDirectory, wrConfig.virtualBasePath);
+    var fileList = ReadDirectoryAndRetrieveFiles(clientConfig.localDirectory, clientConfig.virtualBasePath, [], fileNames);
 
     return fileList;
 }
 
-const ReadDirectoryAndRetrieveFiles = (directory, virtualPath, existingFileList) => {
+const ReadDirectoryAndRetrieveFiles = (directory, virtualPath, existingFileList = [], fileNames = []) => {
 
-    const namesInDirectory = fs.readdirSync(directory);
+    let namesInDirectory = fs.readdirSync(directory);
 
-    const fileList = existingFileList || []
+    const fileList = existingFileList || [];
 
-    namesInDirectory.forEach((name) => {
+    for(const name of namesInDirectory) {
 
         const completePath = path.resolve(directory, name);
         const stats = fs.statSync(completePath);
         const isDirectory = stats.isDirectory();
 
         if(!isDirectory) {
+            
+            if(fileNames.length > 0 && !fileNames.some(f => f === name)) {
+                continue;
+            }
+
             const fileContent = fs.readFileSync(completePath, { encoding: "base64" });
-            fileList.push({
-                fileName: name,
-                virtualPath: virtualPath + "/" + name,
-                fileContent: fileContent,
-                type: GetWebResourceType(name),
-            });
+                fileList.push({
+                    fileName: name,
+                    virtualPath: path.join(virtualPath, name).replace("\\", "/"),
+                    fileContent: fileContent,
+                    type: GetWebResourceType(name),
+                });
+
         } else {
-            ReadDirectoryAndRetrieveFiles(completePath, virtualPath + "/" + name, fileList);
+            ReadDirectoryAndRetrieveFiles(completePath, path.join(virtualPath, name), fileList, fileNames);
         }
-    });
+    };
 
     return fileList;
 }
