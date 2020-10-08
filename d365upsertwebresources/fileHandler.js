@@ -53,45 +53,45 @@ const ReadDirectoryAndRetrieveFiles = (directory, virtualPath, existingFileList 
 }
 
 const GetWebResourceType = (fileName) => {
-    const extension = path.extname(fileName);
 
-    if (extension.toLowerCase() == ".htm" || extension.toLowerCase() == ".html") {
+    const extension = path.extname(fileName).toLowerCase();
+
+    if (extension == ".htm" || extension == ".html") {
         return 1;
     }
-
-    if (extension.toLowerCase() == ".css") {
+    if (extension == ".css") {
         return 2;
     }
 
-    if (extension.toLowerCase() == ".js") {
+    if (extension == ".js") {
         return 3;
     }
 
-    if (extension.toLowerCase() == ".xml") {
+    if (extension == ".xml") {
         return 4;
     }
 
-    if (extension.toLowerCase() == ".png") {
+    if (extension == ".png") {
         return 5;
     }
 
-    if (extension.toLowerCase() == ".jpg") {
+    if (extension == ".jpg") {
         return 6;
     }
 
-    if (extension.toLowerCase() == ".gif") {
+    if (extension == ".gif") {
         return 7;
     }
 
-    if (extension.toLowerCase() == ".xap") {
+    if (extension == ".xap") {
         return 8;
     }
 
-    if (extension.toLowerCase() == ".xsl" || extension.toLowerCase() == ".xslt") {
+    if (extension == ".xsl" || extension == ".xslt") {
         return 9;
     }
 
-    if (extension.toLowerCase() == ".ico") {
+    if (extension == ".ico") {
         return 10;
     }
 }

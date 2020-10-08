@@ -22,34 +22,28 @@ exports.WebresourceService = class WebresourceService {
     }
 
     async UpsertWebresources() {
+        let publishCustomizations = false;
+        let publishXmlString = "<importexportxml><webresources>";
 
-        try {
-            let publishCustomizations = false;
-            let publishXmlString = "<importexportxml><webresources>";
+        for (const file of this.Files) {
+            const existingWebResource = await this.TryFindExistingWebresource(file);
+            if (existingWebResource) {
+                console.info(file.virtualPath + ": existing.");
+                publishCustomizations = true;
+                await this.UpdateWebresource(existingWebResource.webresourceid, file.fileContent);
+                publishXmlString += "<webresource>" + existingWebResource.webresourceid + "</webresource>";
 
-            for (const file of this.Files) {
-                const existingWebResource = await this.TryFindExistingWebresource(file);
-                if (existingWebResource) {
-                    console.log(file.virtualPath + ": existing.");
-                    publishCustomizations = true;
-                    await this.UpdateWebresource(existingWebResource.webresourceid, file.fileContent);
-                    publishXmlString += "<webresource>" + existingWebResource.webresourceid + "</webresource>";
-
-                } else {
-                    console.log(file.virtualPath + ": new.");
-                    await this.CreateWebresource(file);
-                }
-            }
-
-            publishXmlString += "</webresources></importexportxml>";
-
-            if (publishCustomizations) {
-                console.log("Publishing customizations...");
-                await this.PublishCustomizations(publishXmlString);
+            } else {
+                console.info(file.virtualPath + ": new.");
+                await this.CreateWebresource(file);
             }
         }
-        catch(error) {
-            console.error(error);
+
+        publishXmlString += "</webresources></importexportxml>";
+
+        if (publishCustomizations) {
+            console.info("Publishing customizations...");
+            await this.PublishCustomizations(publishXmlString);
         }
     }
 
@@ -57,7 +51,13 @@ exports.WebresourceService = class WebresourceService {
 
         const queryUrl = encodeURI(this.WebresourceUrl + "?$select=webresourceid&$filter=name eq '" + file.virtualPath + "'");
 
-        const res = await superagent.get(queryUrl).set(this.RequestHeaders).catch()
+        let res = undefined;
+        try {
+            res = await superagent.get(queryUrl).set(this.RequestHeaders);
+        }
+        catch (errorResponse) {
+            throw new Error(errorResponse.response.body.error.message);
+        }
 
         return res.body.value.pop();
     }
@@ -69,7 +69,13 @@ exports.WebresourceService = class WebresourceService {
             content: fileContent,
         }
 
-        var res = await superagent.patch(url).set(this.RequestHeaders).send(webresource);
+        let res = undefined;
+        try {
+            res = await superagent.patch(url).set(this.RequestHeaders).send(webresource);
+        }
+        catch (errorResponse) {
+            throw new Error(errorResponse.response.body.error.message);
+        }
 
         return res.body;
     }
@@ -85,7 +91,13 @@ exports.WebresourceService = class WebresourceService {
             content: file.fileContent,
         }
 
-        var res = await superagent.post(url).set(this.RequestHeaders).send(webresource);
+        let res = undefined;
+        try {
+            res = await superagent.post(url).set(this.RequestHeaders).send(webresource);
+        }
+        catch (errorResponse) {
+            throw new Error(errorResponse.response.body.error.message);
+        }
 
         return res.body;
     }
@@ -97,7 +109,13 @@ exports.WebresourceService = class WebresourceService {
             ParameterXml: publishXmlString
         }
 
-        var res = await superagent.post(url).set(this.RequestHeaders).send(publishBody);
+        let res = undefined;
+        try {
+            res = await superagent.post(url).set(this.RequestHeaders).send(publishBody);
+        }
+        catch (errorResponse) {
+            throw new Error(errorResponse.response.body.error.message);
+        }
 
         return res.body;
     }

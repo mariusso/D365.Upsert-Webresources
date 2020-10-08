@@ -2,20 +2,25 @@
 
 const WebresourceService = require("./WebresourceService").WebresourceService;
 const fileHandler = require("./FileHandler");
-const adal = require("./AdalNode");
+const AcquireTokenWithClientCredentials = require("./AdalNode").AcquireTokenWithClientCredentials;
 const dr365config = require("./clientConfig/clientConfig.json");
 
 exports.Execute = async (fileNames) => {
-    
-    console.log("Deploying web resources...");
+    try {
+        console.info("Deploying web resources...");
 
-    const tokenResponse = await  adal.AcquireTokenWithClientCredentials();
+        const tokenResponse = await AcquireTokenWithClientCredentials();
 
-    const files = fileHandler.GetFiles(fileNames);
+        const files = fileHandler.GetFiles(fileNames);
 
-    const webresourceService = new WebresourceService(files, tokenResponse, dr365config.webApiUrl)
+        const webresourceService = new WebresourceService(files, tokenResponse, dr365config.webApiUrl)
 
-    await webresourceService.UpsertWebresources();
+        await webresourceService.UpsertWebresources();
 
-    console.log("Done.");
+        console.info("Done.");
+
+    }
+    catch (error) {
+        console.error(error.message);
+    }
 }
