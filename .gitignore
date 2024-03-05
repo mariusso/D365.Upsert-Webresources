@@ -1,2 +1,3 @@
-node_modules/
-clientConfig/
+node_modules
+ClientAuthConfig.json
+FileConfig.json

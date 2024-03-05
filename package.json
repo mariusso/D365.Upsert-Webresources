@@ -1,18 +1,16 @@
 {
-  "name": "d365-upsert-webresource",
+  "name": "d365-upsert-webresources",
   "version": "1.0.0",
   "description": "",
-  "main": "d365upsertwebresource.js",
+  "main": "EntryPoint.js",
   "scripts": {
-    "start": "node d365upsertwebresources/EntryPoint.js"
+    "start": "node EntryPoint.js"
   },
   "author": "Marius Solend",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "12.7.5"
-  },
-  "dependencies": {
-    "adal-node": "0.2.1",
-    "superagent": "5.1.0"
+    "@azure/msal-node": "^2.6.4",
+    "@types/node": "^20.11.24",
+    "superagent": "^8.1.2"
   }
 }

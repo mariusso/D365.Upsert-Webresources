@@ -1,11 +1,10 @@
 "use strict";
 
-const url = require("url");
 const superagent = require("superagent");
 
 exports.WebresourceService = class WebresourceService {
 
-    constructor(filesToUpsert, tokenResponse, webApiUrl) {
+    constructor(filesToUpsert, tokenResponse, config) {
 
         this.Files = filesToUpsert;
 
@@ -13,29 +12,42 @@ exports.WebresourceService = class WebresourceService {
             "Authorization": "Bearer " + tokenResponse.accessToken,
             "Accept": "application/json",
             "Content-Type": "application/json",
+            "If-None-Match": null,
             "OData-MaxVersion": "4.0",
-            "OData-Version": "4.0"
+            "OData-Version": "4.0",
+            "Prefer": "return=representation,odata.include-annotations=\"*\"",
         };
 
-        this.WebresourceUrl = url.format(webApiUrl + "webresourceset");
-        this.PublishUrl = url.format(webApiUrl + "PublishXml");
+        const relativeUrl = "api/data/v" + config.apiVersion + "/";
+
+        const webApiUrl = new URL(relativeUrl, config.resource)
+
+        this.WebresourceUrl = new URL("webresourceset", webApiUrl).toString();
+        this.PublishUrl = new URL("PublishXml", webApiUrl).toString();
+        this.AddToSolutionUrl = new URL("AddSolutionComponent", webApiUrl).toString();
     }
 
-    async UpsertWebresources() {
+    async UpsertWebresources(solutionUniqueName) {
         let publishCustomizations = false;
         let publishXmlString = "<importexportxml><webresources>";
 
         for (const file of this.Files) {
-            const existingWebResource = await this.TryFindExistingWebresource(file);
-            if (existingWebResource) {
+            let webresourceid = await this.TryFindExistingWebresource(file);
+            if (webresourceid) {
                 console.info(file.virtualPath + ": existing.");
                 publishCustomizations = true;
-                await this.UpdateWebresource(existingWebResource.webresourceid, file.fileContent);
-                publishXmlString += "<webresource>" + existingWebResource.webresourceid + "</webresource>";
+                await this.UpdateWebresource(webresourceid, file.fileContent);
+                publishXmlString += "<webresource>" + webresourceid + "</webresource>";
 
             } else {
                 console.info(file.virtualPath + ": new.");
-                await this.CreateWebresource(file);
+                const createResponse = await this.CreateWebresource(file);
+                webresourceid = createResponse.webresourceid;
+            }
+
+            if(solutionUniqueName != null && solutionUniqueName.length > 0) {
+                console.log("Adding " + file.virtualPath + " to solution " + solutionUniqueName);
+                await this.AddWebresourceToSolution(webresourceid, solutionUniqueName);
             }
         }
 
@@ -59,7 +71,9 @@ exports.WebresourceService = class WebresourceService {
             throw new Error(errorResponse.response.body.error.message);
         }
 
-        return res.body.value.pop();
+        const existingWebresource = res.body.value.pop();
+
+        return existingWebresource?.webresourceid;
     }
 
     async UpdateWebresource(webresourceId, fileContent) {
@@ -69,15 +83,12 @@ exports.WebresourceService = class WebresourceService {
             content: fileContent,
         }
 
-        let res = undefined;
         try {
-            res = await superagent.patch(url).set(this.RequestHeaders).send(webresource);
+            await superagent.patch(url).set(this.RequestHeaders).send(webresource);
         }
         catch (errorResponse) {
             throw new Error(errorResponse.response.body.error.message);
         }
-
-        return res.body;
     }
 
     async CreateWebresource(file) {
@@ -100,6 +111,35 @@ exports.WebresourceService = class WebresourceService {
         }
 
         return res.body;
+    }
+
+    async DeleteWebresource(webresourceId) {
+        const url = encodeURI(this.WebresourceUrl + "(" + webresourceId + ")");
+
+        try {
+            await superagent.del(url).set(this.RequestHeaders);
+        }
+        catch (errorResponse) {
+            throw new Error(errorResponse.response.body.error.message);
+        }
+    }
+
+    async AddWebresourceToSolution(webresourceId, solutionUniqueName) {
+        const url = encodeURI(this.AddToSolutionUrl);
+
+        const addSolutionComponentRequest = {
+            ComponentId: webresourceId,
+            ComponentType: 61, // Webresource
+            SolutionUniqueName: solutionUniqueName,
+            AddRequiredComponents: false,
+            IncludedComponentSettingsValues: null
+        };
+
+        try {
+            await superagent.post(url).set(this.RequestHeaders).send(addSolutionComponentRequest)
+        } catch (error) {
+            throw new Error(error.response.body.error.message);
+        }
     }
 
     async PublishCustomizations(publishXmlString) {

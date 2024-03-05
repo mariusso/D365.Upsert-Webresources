@@ -2,20 +2,27 @@
 
 const fs = require("fs");
 const path = require("path");
-const clientConfig = require("./clientConfig/clientConfig.json");
-
-if (clientConfig == null) {
-    throw new Error("Missing webresources.json");
-}
+const fileConfig = require("./FileConfig.json");
 
 exports.GetFiles = (fileNames = []) => {
 
-    var fileList = ReadDirectoryAndRetrieveFiles(clientConfig.localDirectory, clientConfig.virtualBasePath, [], fileNames);
+    if (fileConfig == null) {
+        throw new Error("Missing client file configuration");
+    }
+
+    let fileList = [];
+
+    if (fileConfig.localDirectory != null) {
+        fileList = RetrieveFilesByDirectory(fileConfig.localDirectory, "", [], fileNames);
+    }
+    else {
+        fileList = RetrieveFilesByManifest(fileNames);
+    }
 
     return fileList;
 }
 
-const ReadDirectoryAndRetrieveFiles = (directory, virtualPath, existingFileList = [], fileNames = []) => {
+const RetrieveFilesByDirectory = (directory, virtualPath, existingFileList = [], fileNames = []) => {
 
     let namesInDirectory = fs.readdirSync(directory);
 
@@ -36,18 +43,42 @@ const ReadDirectoryAndRetrieveFiles = (directory, virtualPath, existingFileList 
             const fileContent = fs.readFileSync(completePath, { encoding: "base64" });
             fileList.push({
                 fileName: name,
-                virtualPath: path.join(virtualPath, name).replace(/[\\]/g, "/", ),
+                virtualPath: path.join(virtualPath, name).replace(/[\\]/g, "/",),
                 fileContent: fileContent,
                 type: GetWebResourceType(name),
             });
 
         } else {
-            if (fileNames.length > 0 && !fileNames.some(f => f === name)) {
-                continue;
-            }
-            ReadDirectoryAndRetrieveFiles(completePath, path.join(virtualPath, name), fileList, fileNames);
+            RetrieveFilesByDirectory(completePath, path.join(virtualPath, name), fileList, fileNames);
         }
     };
+
+    return fileList;
+}
+
+const RetrieveFilesByManifest = (fileNames = []) => {
+
+    const fileList = [];
+
+    for (const fileName of fileNames) {
+
+        const manifestRecord = fileConfig.manifest.filter(m => m.name == fileName)?.[0];
+
+        if (manifestRecord == null) {
+            console.log("Could not find manifest record with name '" + fileName + "'.");
+            continue;
+        }
+
+        const baseName = path.basename(manifestRecord.localPath);
+        const fileContent = fs.readFileSync(manifestRecord.localPath, { encoding: "base64" });
+
+        fileList.push({
+            fileName: baseName,
+            virtualPath: manifestRecord.virtualPath,
+            fileContent: fileContent,
+            type: GetWebResourceType(baseName),
+        });
+    }
 
     return fileList;
 }
