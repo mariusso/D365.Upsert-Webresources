@@ -3,7 +3,7 @@
 const WebresourceService = require("./WebresourceService").WebresourceService;
 const fileHandler = require("./FileHandler");
 const AcquireTokenByClientCredential = require("./MsalNode").AcquireTokenByClientCredential;
-const clientAuthConfig = require("./clientAuthConfig.json");
+const clientAuthConfig = require("./ClientAuthConfig.json");
 
 exports.Execute = async (fileNames, environment, solutionUniqueName) => {
     try {
