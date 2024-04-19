@@ -5,8 +5,8 @@ const msal = require('@azure/msal-node');
 exports.AcquireTokenByClientCredential = async (clientAuthConfig) => {
     const msalConfig = {
         auth: {
-            clientId: clientAuthConfig.clientId,
             authority: clientAuthConfig.authority,
+            clientId: clientAuthConfig.clientId,
             clientSecret: clientAuthConfig.clientSecret
         }
     };
