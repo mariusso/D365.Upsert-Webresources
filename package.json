@@ -9,8 +9,9 @@
   "author": "Marius Solend",
   "license": "ISC",
   "devDependencies": {
-    "@azure/msal-node": "^2.6.4",
+    "@azure/msal-node": "^2.7.0",
     "@types/node": "^20.11.24",
+    "open": "^10.1.0",
     "superagent": "^8.1.2"
   }
 }

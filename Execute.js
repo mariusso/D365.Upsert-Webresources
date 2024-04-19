@@ -3,6 +3,7 @@
 const WebresourceService = require("./WebresourceService").WebresourceService;
 const fileHandler = require("./FileHandler");
 const AcquireTokenByClientCredential = require("./MsalNode").AcquireTokenByClientCredential;
+const AcquireTokenInteractive = require("./MsalNode").AcquireTokenInteractive;
 const clientAuthConfig = require("./ClientAuthConfig.json");
 
 exports.Execute = async (fileNames, environment, solutionUniqueName) => {
@@ -22,7 +23,14 @@ exports.Execute = async (fileNames, environment, solutionUniqueName) => {
 
         console.info("Acquiring token...");
 
-        const tokenResponse = await AcquireTokenByClientCredential(config);
+        let tokenResponse;
+
+        if(config.clientSecret != null) {
+            tokenResponse = await AcquireTokenByClientCredential(config);
+        }
+        else {
+            tokenResponse = await AcquireTokenInteractive(config);
+        }
 
         console.info("Retrieving files...");
 

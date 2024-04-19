@@ -34,6 +34,8 @@ npm run start fileName DEV SolutionUniqueName
 }]
 ```
 
+Client Secret is optional. If this is not present, interactive login will be used.
+
 ## Example FileConfig.json using local directory:
 ```
 {
